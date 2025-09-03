@@ -14,9 +14,32 @@
 
             <!-- Form -->
             <form method="post" class="space-y-6">
+                <!-- Tytuł -->
+                <div>
+                    <label for="tytul" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Tytuł
+                    </label>
+                    <div class="mt-1">
+                        <input 
+                            type="text" 
+                            id="tytul" 
+                            name="tytul" 
+                            value="{{ tytul or '' }}"
+                            placeholder="np. mgr, inż., lic., dr"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                        >
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Tytuł naukowy lub zawodowy (opcjonalny)
+                    </p>
+                    {% if errors and errors.tytul %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.tytul }}</p>
+                    {% endif %}
+                </div>
+
                 <!-- Imię -->
                 <div>
-                    <label for="imie" class="block text-sm font-medium text-gray-700">
+                    <label for="imie" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Imię/Nazwa
                     </label>
                     <div class="mt-1">
@@ -26,17 +49,17 @@
                             name="imie" 
                             value="{{ imie or '' }}"
                             placeholder="Wprowadź imię lub nazwę"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                         >
                     </div>
                     {% if errors and errors.imie %}
-                        <p class="mt-2 text-sm text-red-600">{{ errors.imie }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.imie }}</p>
                     {% endif %}
                 </div>
 
                 <!-- Nazwisko -->
                 <div>
-                    <label for="nazwisko" class="block text-sm font-medium text-gray-700">
+                    <label for="nazwisko" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Nazwisko
                     </label>
                     <div class="mt-1">
@@ -46,17 +69,17 @@
                             name="nazwisko" 
                             value="{{ nazwisko or '' }}"
                             placeholder="Wprowadź nazwisko"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                         >
                     </div>
                     {% if errors and errors.nazwisko %}
-                        <p class="mt-2 text-sm text-red-600">{{ errors.nazwisko }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.nazwisko }}</p>
                     {% endif %}
                 </div>
 
                 <!-- Numer wewnętrzny -->
                 <div>
-                    <label for="numer_wewnetrzny" class="block text-sm font-medium text-gray-700">
+                    <label for="numer_wewnetrzny" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Numer wewnętrzny
                     </label>
                     <div class="mt-1">
@@ -66,21 +89,21 @@
                             name="numer_wewnetrzny" 
                             value="{{ numer_wewnetrzny or '' }}"
                             placeholder="np. 111"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md {% if errors and errors.numer_wewnetrzny %}border-red-300{% endif %}"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md {% if errors and errors.numer_wewnetrzny %}border-red-300 dark:border-red-600{% endif %}"
                             required
                         >
                     </div>
-                    <p class="mt-1 text-sm text-gray-500">
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         Wymagane.
                     </p>
                     {% if errors and errors.numer_wewnetrzny %}
-                        <p class="mt-2 text-sm text-red-600">{{ errors.numer_wewnetrzny }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.numer_wewnetrzny }}</p>
                     {% endif %}
                 </div>
 
                 <!-- Dział -->
                 <div>
-                    <label for="dzial" class="block text-sm font-medium text-gray-700">
+                    <label for="dzial" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Dział
                     </label>
                     <div class="mt-1">
@@ -90,17 +113,17 @@
                             name="dzial" 
                             value="{{ dzial or '' }}"
                             placeholder="Nazwa działu"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                         >
                     </div>
                     {% if errors and errors.dzial %}
-                        <p class="mt-2 text-sm text-red-600">{{ errors.dzial }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.dzial }}</p>
                     {% endif %}
                 </div>
 
                 <!-- Firma (opcjonalne pole) -->
                 <div>
-                    <label for="firma" class="block text-sm font-medium text-gray-700">
+                    <label for="firma" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Firma
                     </label>
                     <div class="mt-1">
@@ -110,17 +133,17 @@
                             name="firma" 
                             value="{{ firma or '' }}"
                             placeholder="Nazwa firmy"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                         >
                     </div>
                     {% if errors and errors.firma %}
-                        <p class="mt-2 text-sm text-red-600">{{ errors.firma }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.firma }}</p>
                     {% endif %}
                 </div>
 
                 <!-- Notatki (opcjonalne pole) -->
                 <div>
-                    <label for="notatki" class="block text-sm font-medium text-gray-700">
+                    <label for="notatki" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Notatki
                     </label>
                     <div class="mt-1">
@@ -129,19 +152,19 @@
                             name="notatki" 
                             rows="3"
                             placeholder="Dodatkowe informacje"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
                         >{{ notatki or '' }}</textarea>
                     </div>
                     {% if errors and errors.notatki %}
-                        <p class="mt-2 text-sm text-red-600">{{ errors.notatki }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.notatki }}</p>
                     {% endif %}
                 </div>
 
                 <!-- Buttons -->
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <a 
                         href="/kontakty" 
-                        class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        class="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                         Anuluj
                     </a>
