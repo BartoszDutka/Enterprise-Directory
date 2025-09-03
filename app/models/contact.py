@@ -6,6 +6,7 @@ import uuid
 
 class ContactBase(SQLModel):
     """Bazowy model kontaktu z wspólnymi polami"""
+    tytul: Optional[str] = Field(default=None, description="Tytuł naukowy/zawodowy (np. mgr, inż., lic.)")
     imie: Optional[str] = Field(default=None, description="Imię lub nazwa kontaktu")
     nazwisko: Optional[str] = Field(default=None, description="Nazwisko kontaktu")
     numer_wewnetrzny: str = Field(
@@ -44,6 +45,7 @@ class ContactCreate(ContactBase):
 
 class ContactUpdate(SQLModel):
     """Schema do aktualizacji kontaktu"""
+    tytul: Optional[str] = Field(default=None, description="Tytuł naukowy/zawodowy")
     imie: Optional[str] = Field(default=None, description="Imię kontaktu")
     nazwisko: Optional[str] = Field(default=None, description="Nazwisko kontaktu")
     numer_wewnetrzny: Optional[str] = Field(default=None, description="Numer wewnętrzny")

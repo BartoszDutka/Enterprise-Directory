@@ -45,6 +45,7 @@ async def contacts_list(
         search_term = f"%{q.strip()}%"
         query = query.where(
             or_(
+                Contact.tytul.contains(search_term),
                 Contact.imie.contains(search_term),
                 Contact.nazwisko.contains(search_term),
                 Contact.numer_wewnetrzny.contains(search_term),
@@ -87,6 +88,7 @@ async def contacts_list(
         search_term = f"%{q.strip()}%"
         count_query = count_query.where(
             or_(
+                Contact.tytul.contains(search_term),
                 Contact.imie.contains(search_term),
                 Contact.nazwisko.contains(search_term),
                 Contact.numer_wewnetrzny.contains(search_term),
@@ -177,6 +179,7 @@ async def contact_create_form(request: Request):
 @router.post("/kontakty/nowy")
 async def contact_create(
     request: Request,
+    tytul: str = Form("", description="Tytuł naukowy/zawodowy"),
     imie: str = Form("", description="Imię lub nazwa"),
     nazwisko: str = Form("", description="Nazwisko"),
     numer_wewnetrzny: str = Form(..., description="Numer wewnętrzny"),
@@ -213,6 +216,7 @@ async def contact_create(
                 "request": request,
                 "title": "Nowy kontakt - Książka Telefoniczna",
                 "errors": errors,
+                "tytul": tytul,
                 "imie": imie,
                 "nazwisko": nazwisko,
                 "numer_wewnetrzny": numer_wewnetrzny,
@@ -224,6 +228,7 @@ async def contact_create(
     
     # Stwórz kontakt
     contact = Contact(
+        tytul=tytul.strip() if tytul.strip() else None,
         imie=imie.strip() if imie.strip() else None,
         nazwisko=nazwisko.strip() if nazwisko.strip() else None,
         numer_wewnetrzny=numer_wewnetrzny.strip(),
@@ -309,6 +314,7 @@ async def contact_edit_form(
 async def contact_edit(
     request: Request,
     contact_id: str,
+    tytul: str = Form("", description="Tytuł naukowy/zawodowy"),
     imie: str = Form("", description="Imię lub nazwa"),
     nazwisko: str = Form("", description="Nazwisko"),
     numer_wewnetrzny: str = Form(..., description="Numer wewnętrzny"),
@@ -354,6 +360,7 @@ async def contact_edit(
                 "title": f"Edytuj {contact.imie} {contact.nazwisko} - Książka Telefoniczna",
                 "contact": contact,
                 "errors": errors,
+                "tytul": tytul,
                 "imie": imie,
                 "nazwisko": nazwisko,
                 "numer_wewnetrzny": numer_wewnetrzny,
@@ -364,6 +371,7 @@ async def contact_edit(
         )
     
     # Aktualizuj kontakt
+    contact.tytul = tytul.strip() if tytul.strip() else None
     contact.imie = imie.strip() if imie.strip() else None
     contact.nazwisko = nazwisko.strip() if nazwisko.strip() else None
     contact.numer_wewnetrzny = numer_wewnetrzny.strip()
@@ -432,6 +440,7 @@ async def export_contacts_csv(
         search_term = f"%{q.strip()}%"
         query = query.where(
             or_(
+                Contact.tytul.contains(search_term),
                 Contact.imie.contains(search_term),
                 Contact.nazwisko.contains(search_term),
                 Contact.numer_wewnetrzny.contains(search_term),
@@ -455,6 +464,7 @@ async def export_contacts_csv(
     data = []
     for contact in contacts:
         data.append({
+            'Tytuł': contact.tytul or '',
             'Imię/Nazwa': contact.imie or '',
             'Nazwisko': contact.nazwisko or '',
             'Numer wewnętrzny': contact.numer_wewnetrzny,
@@ -507,6 +517,7 @@ async def export_contacts_excel(
         search_term = f"%{q.strip()}%"
         query = query.where(
             or_(
+                Contact.tytul.contains(search_term),
                 Contact.imie.contains(search_term),
                 Contact.nazwisko.contains(search_term),
                 Contact.numer_wewnetrzny.contains(search_term),
@@ -526,6 +537,7 @@ async def export_contacts_excel(
     data = []
     for contact in contacts:
         data.append({
+            'Tytuł': contact.tytul or '',
             'Imię/Nazwa': contact.imie or '',
             'Nazwisko': contact.nazwisko or '',
             'Numer wewnętrzny': contact.numer_wewnetrzny,
@@ -592,6 +604,7 @@ async def export_contacts_pdf(
         search_term = f"%{q.strip()}%"
         query = query.where(
             or_(
+                Contact.tytul.contains(search_term),
                 Contact.imie.contains(search_term),
                 Contact.nazwisko.contains(search_term),
                 Contact.numer_wewnetrzny.contains(search_term),
@@ -653,10 +666,11 @@ async def export_contacts_pdf(
         story.append(Spacer(1, 20))
     
     # Przygotuj dane tabeli z konwersją polskich znaków
-    table_data = [[polish_to_ascii('Imie/Nazwa'), polish_to_ascii('Nazwisko'), 'Numer wew.', polish_to_ascii('Dzial'), 'Firma']]
+    table_data = [[polish_to_ascii('Tytul'), polish_to_ascii('Imie/Nazwa'), polish_to_ascii('Nazwisko'), 'Numer wew.', polish_to_ascii('Dzial'), 'Firma']]
     
     for contact in contacts:
         table_data.append([
+            polish_to_ascii(contact.tytul or ''),
             polish_to_ascii(contact.imie or ''),
             polish_to_ascii(contact.nazwisko or ''), 
             contact.numer_wewnetrzny,
