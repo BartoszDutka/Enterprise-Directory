@@ -14,10 +14,10 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Dział
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            Firma
-                        </th>
                         {% if user %}
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <i class="fas fa-star text-yellow-500"></i>
+                            </th>
                             <th scope="col" class="relative px-6 py-3">
                                 <span class="sr-only">Akcje</span>
                             </th>
@@ -69,10 +69,18 @@
                                     <span class="text-gray-400 dark:text-gray-500">—</span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ contact.firma or "—" }}
-                            </td>
                             {% if user %}
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <button 
+                                        type="button"
+                                        class="favorite-btn p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                        data-contact-id="{{ contact.id }}"
+                                        onclick="toggleFavorite('{{ contact.id }}')"
+                                        title="Dodaj/usuń z ulubionych"
+                                    >
+                                        <i class="fas fa-star favorite-icon text-gray-300 hover:text-yellow-500 transition-colors" data-contact-id="{{ contact.id }}"></i>
+                                    </button>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end space-x-2">
                                         <a href="/kontakty/{{ contact.id }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Zobacz szczegóły">
@@ -248,4 +256,116 @@ document.getElementById('deleteModal').onclick = function(e) {
         this.classList.add('hidden');
     }
 }
+
+// Ulubione kontakty - localStorage
+function getFavorites() {
+    const favorites = localStorage.getItem('favoriteContacts');
+    return favorites ? JSON.parse(favorites) : [];
+}
+
+function saveFavorites(favorites) {
+    localStorage.setItem('favoriteContacts', JSON.stringify(favorites));
+}
+
+function toggleFavorite(contactId) {
+    const favorites = getFavorites();
+    const index = favorites.indexOf(contactId);
+    
+    if (index === -1) {
+        // Dodaj do ulubionych
+        favorites.push(contactId);
+    } else {
+        // Usuń z ulubionych
+        favorites.splice(index, 1);
+    }
+    
+    saveFavorites(favorites);
+    updateFavoriteIcon(contactId);
+    
+    // Jeśli sortowanie to favorites_first, odśwież listę
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort') || 'favorites_first';
+    if (currentSort === 'favorites_first') {
+        // Trigger HTMX refresh
+        const searchForm = document.getElementById('search-form') || document.querySelector('form');
+        if (searchForm) {
+            htmx.trigger(searchForm, 'submit');
+        }
+    }
+}
+
+function updateFavoriteIcon(contactId) {
+    const favorites = getFavorites();
+    const icon = document.querySelector(`[data-contact-id="${contactId}"].favorite-icon`);
+    
+    if (icon) {
+        if (favorites.includes(contactId)) {
+            icon.classList.remove('text-gray-300');
+            icon.classList.add('text-yellow-500');
+        } else {
+            icon.classList.remove('text-yellow-500');
+            icon.classList.add('text-gray-300');
+        }
+    }
+}
+
+function updateAllFavoriteIcons() {
+    const favorites = getFavorites();
+    document.querySelectorAll('.favorite-icon').forEach(icon => {
+        const contactId = icon.getAttribute('data-contact-id');
+        if (favorites.includes(contactId)) {
+            icon.classList.remove('text-gray-300');
+            icon.classList.add('text-yellow-500');
+        } else {
+            icon.classList.remove('text-yellow-500');
+            icon.classList.add('text-gray-300');
+        }
+    });
+}
+
+function sortContactsByFavorites() {
+    const favorites = getFavorites();
+    const tbody = document.querySelector('tbody');
+    if (!tbody) return;
+    
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+        const aContactId = a.querySelector('.favorite-icon')?.getAttribute('data-contact-id');
+        const bContactId = b.querySelector('.favorite-icon')?.getAttribute('data-contact-id');
+        
+        const aIsFavorite = favorites.includes(aContactId);
+        const bIsFavorite = favorites.includes(bContactId);
+        
+        if (aIsFavorite && !bIsFavorite) return -1;
+        if (!aIsFavorite && bIsFavorite) return 1;
+        return 0;
+    });
+    
+    // Przepinaj wiersze w nowej kolejności
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Inicjalizacja po załadowaniu
+document.addEventListener('DOMContentLoaded', function() {
+    updateAllFavoriteIcons();
+    
+    // Jeśli sortowanie to favorites_first, posortuj kontakty
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort') || 'favorites_first';
+    if (currentSort === 'favorites_first') {
+        sortContactsByFavorites();
+    }
+});
+
+// Inicjalizacja również po każdym HTMX update
+document.body.addEventListener('htmx:afterSwap', function(event) {
+    updateAllFavoriteIcons();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort') || 'favorites_first';
+    if (currentSort === 'favorites_first') {
+        sortContactsByFavorites();
+    }
+});
 </script>
