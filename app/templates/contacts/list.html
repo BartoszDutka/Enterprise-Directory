@@ -76,7 +76,7 @@
             <form method="get" id="search-form" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Search -->
-                    <div class="md:col-span-2">
+                    <div class="md:col-span-1">
                         <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Szukaj</label>
                         <div class="mt-1 relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -93,7 +93,7 @@
                                 hx-trigger="keyup changed delay:400ms, search"
                                 hx-target="#contacts-list"
                                 hx-swap="innerHTML"
-                                hx-include="[name='dzial'], [name='sort']"
+                                hx-include="[name='dzial'], [name='sort'], [name='favorites_only']"
                                 hx-indicator=".htmx-indicator"
                             >
                         </div>
@@ -110,7 +110,7 @@
                             hx-trigger="change"
                             hx-target="#contacts-list"
                             hx-swap="innerHTML"
-                            hx-include="[name='q'], [name='sort']"
+                            hx-include="[name='q'], [name='sort'], [name='favorites_only']"
                             hx-indicator=".htmx-indicator"
                         >
                             <option value="">Wszystkie działy</option>
@@ -118,6 +118,23 @@
                                 <option value="{{ dept }}" {% if dzial == dept %}selected{% endif %}>{{ dept }}</option>
                             {% endfor %}
                         </select>
+                    </div>
+                    
+                    <!-- Favorites Filter -->
+                    <div>
+                        <label for="favorites_only" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Filtr</label>
+                        <div class="mt-1 flex items-center">
+                            <button 
+                                type="button"
+                                id="favorites-filter-btn"
+                                onclick="toggleFavoritesFilter()"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                <i class="fas fa-star mr-2 text-yellow-500"></i>
+                                <span id="favorites-filter-text">Tylko ulubione</span>
+                            </button>
+                            <input type="hidden" id="favorites_only" name="favorites_only" value="false">
+                        </div>
                     </div>
                 </div>
                 
@@ -132,9 +149,10 @@
                             hx-trigger="change"
                             hx-target="#contacts-list"
                             hx-swap="innerHTML"
-                            hx-include="[name='q'], [name='dzial']"
+                            hx-include="[name='q'], [name='dzial'], [name='favorites_only']"
                             hx-indicator=".htmx-indicator"
                         >
+                            <option value="favorites_first" {% if sort == "favorites_first" %}selected{% endif %}>Ulubione na górze</option>
                             <option value="nazwisko_asc" {% if sort == "nazwisko_asc" %}selected{% endif %}>Nazwisko A-Z</option>
                             <option value="nazwisko_desc" {% if sort == "nazwisko_desc" %}selected{% endif %}>Nazwisko Z-A</option>
                             <option value="dzial_asc" {% if sort == "dzial_asc" %}selected{% endif %}>Dział A-Z</option>
@@ -220,6 +238,76 @@
             button.innerHTML = originalText;
             button.disabled = false;
         }, 2000);
+    }
+    
+    // Favorites filter functionality
+    let favoritesFilterActive = false;
+    
+    function toggleFavoritesFilter() {
+        const button = document.getElementById('favorites-filter-btn');
+        const text = document.getElementById('favorites-filter-text');
+        const input = document.getElementById('favorites_only');
+        
+        favoritesFilterActive = !favoritesFilterActive;
+        
+        if (favoritesFilterActive) {
+            button.classList.remove('border-gray-300', 'text-gray-700', 'bg-white');
+            button.classList.add('border-yellow-500', 'text-yellow-700', 'bg-yellow-50');
+            text.textContent = 'Wszystkie';
+            input.value = 'true';
+            
+            // Filter contacts by favorites
+            filterContactsByFavorites();
+        } else {
+            button.classList.remove('border-yellow-500', 'text-yellow-700', 'bg-yellow-50');
+            button.classList.add('border-gray-300', 'text-gray-700', 'bg-white');
+            text.textContent = 'Tylko ulubione';
+            input.value = 'false';
+            
+            // Show all contacts
+            showAllContacts();
+        }
+    }
+    
+    function filterContactsByFavorites() {
+        const favorites = JSON.parse(localStorage.getItem('favoriteContacts') || '[]');
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const contactId = row.querySelector('.favorite-icon')?.getAttribute('data-contact-id');
+            if (contactId && favorites.includes(contactId)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Update count
+        const visibleCount = Array.from(rows).filter(row => row.style.display !== 'none').length;
+        updateResultsCount(visibleCount);
+    }
+    
+    function showAllContacts() {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.style.display = '';
+        });
+        
+        // Reset count to original
+        const totalCount = rows.length;
+        updateResultsCount(totalCount);
+    }
+    
+    function updateResultsCount(count) {
+        const countElement = document.querySelector('.text-sm.text-gray-700');
+        if (countElement && countElement.textContent.includes('Strona')) {
+            const originalText = countElement.textContent;
+            const pageMatch = originalText.match(/Strona \d+ z \d+/);
+            if (pageMatch) {
+                const countText = count === 1 ? 'wynik' : count < 5 ? 'wyniki' : 'wyników';
+                countElement.textContent = `${pageMatch[0]} (${count} ${countText})`;
+            }
+        }
     }
 </script>
 {% endblock %}
