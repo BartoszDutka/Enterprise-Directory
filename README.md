@@ -1,4 +1,4 @@
-# Telephone Directory
+# Enterprise-Directory
 
 A lightweight internal telephone directory for managing company contacts and
 their extensions. The application provides a searchable contact list, filters
