@@ -7,10 +7,11 @@ services:
       - "80:80"
     environment:
       - ADMIN_EMAIL=admin@firma.pl
-      - ADMIN_PASSWORD=REDACTED_SECRET
-      - SECRET_KEY=REDACTED_SECRET
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY:?Set SECRET_KEY}
       - DATABASE_URL=sqlite:///./data/ksiazka_tele.db
-      - DEBUG=True
+      - DEBUG=False
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
     volumes:
       - ./data:/app/data
     restart: unless-stopped

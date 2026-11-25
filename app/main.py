@@ -25,7 +25,7 @@ app.add_middleware(
     secret_key=settings.secret_key,
     max_age=86400,  # 24 godziny
     same_site="lax",
-    https_only=False  # True w produkcji
+    https_only=settings.cookie_secure
 )
 
 app.add_middleware(
